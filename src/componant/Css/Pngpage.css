@@ -1,0 +1,239 @@
+
+
+.div-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+}
+
+.small-font {
+    font-size: 10px;
+  }
+  
+.invoice {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    width: 210mm;
+    /* A4 width */
+    height: 297mm;
+    /* A4 height */
+    margin: 20mm;
+    /* A4 margins */
+    page-break-after: always;
+    /* Ensure each invoice starts on a new page */
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.header2 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    height: 110px;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #000000;
+    padding: 5px;
+    text-align: center;
+    height: 10px;line-height: 10px;
+
+}
+
+th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    height: 10px;
+    height: 10px;
+    line-height: 1px;
+    text-align: right;
+}
+
+
+
+.company-info {
+    text-align: left;
+    margin-right: 20px;
+    line-height: 8px;
+}
+
+.invoice-info {
+    text-align: right;
+}
+
+.invoice-info tr {
+    display: table-row;
+
+}
+
+.invoice-info th,
+.invoice-info td {
+    display: table-cell;
+    width: 210px;
+    text-align: center;
+}
+
+.invoice-info th {
+    font-weight: bold;
+}
+
+.invoice-info td {
+    padding: 10px;
+    border: 1px bottom solid #000000;
+}
+
+
+.customer-info {
+    margin-bottom: 29px;
+    border: 1px solid #000000;
+    padding: 7px; 
+    width: 450px;
+    height: 97px;
+    line-height: 4px;
+    vertical-align: top;
+}
+
+
+.invoice-details {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 0px;
+}
+
+.invoice-details div {
+    text-align: left;
+    margin-right: 10px;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    height: 450px;
+    overflow-y: auto; 
+}
+
+.invoice-table th,
+.invoice-table td {
+    border: 1px solid #000000;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top; /* add this line to align text to the top */
+    line-height: 2px;
+    height: 10px;
+}
+
+.invoice-table th {
+    background-color: #f2f2f2;
+    text-align: center;
+    height: 10px;
+    padding: 2px;
+}
+
+.invoice-table2 {
+    width: 100%;
+    border-collapse: collapse;
+    height: 5px;
+    margin-bottom: 5px;
+    line-height: 1px;
+}
+
+.invoice-table2 th,
+.invoice-table2 td {
+    border: 1px solid #000000;
+    padding: 8px;
+}
+
+.invoice-table2 th {
+    background-color: #f2f2f2;
+    text-align: center;
+    width: 30%;
+}
+
+.invoice-table2 td {
+    text-align: right;
+    width: 55%;
+}
+
+.invoice-totals {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.invoice-totals div {
+    text-align: left;
+    width: 30%;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.footer div {
+    border: 1px solid #000000;
+    padding: 5px;
+    text-align: center;
+    vertical-align: top;
+    flex: 1; /* add this to make them equal width */
+}
+
+.terms {
+    text-align: left;
+}
+
+.signature {
+    line-height: 5px;
+    text-align: left;
+}
+
+.on-behalf {
+    line-height: 5px;
+    text-align: right;
+}
+
+.internal-use {
+    text-align: right;
+    font-size: 10px;
+    margin-top: 10px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    /* Adjust the gap between buttons */
+    margin-top: 20px;
+    /* Adjust margin as needed */
+}
+
+.button-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    /* Change color as per your theme */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.button-container button:hover {
+    background-color: #0056b3;
+    /* Darker shade for hover effect */
+}
