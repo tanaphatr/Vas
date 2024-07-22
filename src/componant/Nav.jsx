@@ -13,6 +13,7 @@ function Nav() {
                     <Button href="/Login">Login</Button>
                     <Button href="/InvoiceFrom">InvoiceFrom</Button>
                     <Button href="/Invoicetable">PDF</Button>
+                    <Button href="/">Home</Button>
                 </Stack>
             </div>
         </nav>
