@@ -108,7 +108,7 @@ function Frominv() {
         }
 
         console.log('Data to be sent:', {
-            invoice: { ...Invoice, invoice_id: invoiceId }, // Include invoice_id in Invoice data
+            invoice: { ...Invoice}, // Include invoice_id in Invoice data
             customer: { ...Customer, invoice_id: invoiceId }, // Include invoice_id in Customer data
             products: products.map(product => ({ ...product, invoice_id: invoiceId })) // Include invoice_id in each product
         });
@@ -130,16 +130,28 @@ function Frominv() {
                 console.error('Error posting data:', error);
             }
         };
-
+        
         const data = {
-            invoice: { ...Invoice, invoice_id: invoiceId },
-            customer: { ...Customer, invoice_id: invoiceId },
-            products: products.map(product => ({ ...product, invoice_id: invoiceId }))
+            invoice: { ...Invoice },
+            customer: { ...Customer, invoice_num: invoiceId },
+            products: products.map(product => ({ ...product, invoice_num: invoiceId }))
         };
-
-        postData('http://localhost:8888/postproducts', data.products);
-        postData('http://localhost:8888/postinvoices', data.invoice);
-        postData('http://localhost:8888/postcustomers', data.customer);
+        
+        // Use Promise.all to handle multiple requests
+        const postAllData = async () => {
+            try {
+                await Promise.all([
+                    postData('http://localhost:8888/products/post', data.products),
+                    postData('http://localhost:8888/invoices/post', data.invoice),
+                    postData('http://localhost:8888/customers/post', data.customer)
+                ]);
+                console.log('All data posted successfully');
+            } catch (error) {
+                console.error('Error posting all data:', error);
+            }
+        };
+        
+        postAllData();        
     };
 
 
