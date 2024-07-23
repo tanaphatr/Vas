@@ -10,9 +10,10 @@ function Nav() {
             </div>
             <div className="nav-right">
                 <Stack direction="row" spacing={1}>
-                    <Button href="/Login">Login</Button>
+                    {/* <Button href="/Login">Login</Button>
                     <Button href="/InvoiceFrom">InvoiceFrom</Button>
-                    <Button href="/Invoicetable">PDF</Button>
+                    <Button href="/Invoicetable">PDF</Button> */}
+                    <Button href="/">Data</Button>
                     <Button href="/">Home</Button>
                 </Stack>
             </div>

@@ -3,13 +3,11 @@ import './Css/PriceCalculator.css'; // Import the CSS file
 import { Button } from '@mui/material';
 
 const PriceCalculator = () => {
-  // State for input fields and products
   const [exchangeRate, setExchangeRate] = useState(36);
   const [products, setProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
-  // Add a new product entry
   const addProduct = () => {
     setProducts([...products, {
       id: products.length + 1,
@@ -21,7 +19,6 @@ const PriceCalculator = () => {
     setCurrentIndex(products.length); // Show the newly added product form
   };
 
-  // Update product details
   const updateProduct = (field, value) => {
     const updatedProducts = products.map((product, index) =>
       index === currentIndex ? { ...product, [field]: value } : product
@@ -29,17 +26,14 @@ const PriceCalculator = () => {
     setProducts(updatedProducts);
   };
 
-  // Delete a product
   const deleteProduct = (id) => {
     const updatedProducts = products.filter(product => product.id !== id);
     setProducts(updatedProducts);
-    // Reset current index if necessary
     if (currentIndex >= updatedProducts.length) {
       setCurrentIndex(updatedProducts.length - 1);
     }
   };
 
-  // Calculations
   const calculateValues = (priceListEur, productDiscount, margin, customerDiscount) => {
     const costEur = priceListEur * (1 - productDiscount / 100);
     const costThb = costEur * exchangeRate;
@@ -64,18 +58,6 @@ const PriceCalculator = () => {
     };
   };
 
-  // Results for current product
-  const currentProduct = products[currentIndex];
-  const currentResult = currentProduct
-    ? calculateValues(
-        currentProduct.priceListEur,
-        currentProduct.productDiscount,
-        currentProduct.margin,
-        currentProduct.customerDiscount
-      )
-    : null;
-
-  // Calculate total results for all products
   const allResults = products.map(product => calculateValues(
     product.priceListEur,
     product.productDiscount,
@@ -107,7 +89,6 @@ const PriceCalculator = () => {
     profitPercentage: 0,
   });
 
-  // Handle navigation between products
   const nextProduct = () => {
     if (currentIndex < products.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -120,10 +101,61 @@ const PriceCalculator = () => {
     }
   };
 
-  // Toggle show all products
   const toggleShowAll = () => {
     setShowAll(!showAll);
   };
+
+  const handleSubmit = async () => {
+    // เพิ่มการตรวจสอบข้อมูลที่จะส่งไปที่นี่
+    console.log('Data to be submitted:', {
+      PriceList: products.map(p => p.priceListEur),
+      ProDiscount_per: products.map(p => p.productDiscount),
+      Margin_per: products.map(p => p.margin),
+      CusDiscount_per: products.map(p => p.customerDiscount),
+      Cost: allResults.map(result => result.costEur),
+      PriceList_Margin: allResults.map(result => result.priceWithMarginEur),
+      Customer_Price: allResults.map(result => result.customerPriceEur),
+      Profit: allResults.map(result => result.profitEur),
+      Profit_per: allResults.map(result => result.profitPercentage),
+    });
+  
+    try {
+      const response = await fetch('http://localhost:8888/dataofcalprofit/post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          PriceList: products.map(p => p.priceListEur),
+          ProDiscount_per: products.map(p => p.productDiscount),
+          Margin_per: products.map(p => p.margin),
+          CusDiscount_per: products.map(p => p.customerDiscount),
+          Cost: allResults.map(result => result.costEur),
+          PriceList_Margin: allResults.map(result => result.priceWithMarginEur),
+          Customer_Price: allResults.map(result => result.customerPriceEur),
+          Profit: allResults.map(result => result.profitEur),
+          Profit_per: allResults.map(result => result.profitPercentage),
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Data submitted successfully!');
+      } else {
+        alert('Error submitting data: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('An error occurred while submitting data.');
+    }
+  };
+  
+
+  const currentResult = products.length > 0 ? calculateValues(
+    products[currentIndex].priceListEur,
+    products[currentIndex].productDiscount,
+    products[currentIndex].margin,
+    products[currentIndex].customerDiscount
+  ) : null;
 
   return (
     <div className="price-calculator">
@@ -177,6 +209,7 @@ const PriceCalculator = () => {
         <Button onClick={toggleShowAll}>
           {showAll ? 'Hide Total Products' : 'Show Total Products'}
         </Button>
+        <Button onClick={handleSubmit} color="primary">Submit</Button>
       </div>
 
       <div className="results-container">
