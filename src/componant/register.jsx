@@ -1,9 +1,10 @@
 import React from 'react';
 import './Css/Log-Reg.css'
-
+import Nav from './Nav';
 function Register() {
   return (
     <div className="vh-100">
+      <Nav/>
       <section className="container-fluid h-custom">
         <div className="row d-flex justify-content-center align-items-center h-100">
           <div className="col-md-9 col-lg-6 col-xl-5">

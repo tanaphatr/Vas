@@ -6,13 +6,13 @@ import html2canvas from 'html2canvas';
 import logoDark from './image/images.jpg';
 import ThaiBahtText from 'thai-baht-text';
 import Nav from './Nav';
-import { Stack, Box, Button } from '@mui/material';
+import { MenuItem, Select, Button, InputLabel, Box, FormControl } from '@mui/material';
 
 function quatationtable() {
     const [Customer, setCustomer] = useState([]);
     const [quatations, setquatations] = useState([]);
     const [product, setproduct] = useState([]);
-    const [id] = useState(1);
+    const [id ,setId] = useState([]);
     useEffect(() => {
         const fetchCustomer = async () => {
             try {
@@ -28,15 +28,14 @@ function quatationtable() {
             }
         };
 
-        const fetchquatations = async (id) => {
+        const fetchquatations = async () => {
             try {
                 const response = await fetch('http://localhost:8888/quatations');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                const filteredData = data.filter(quatations => quatations.id === id); // กรองข้อมูลตาม id
-                setquatations(filteredData);  // Assuming setquatations is a state updater function
+                setquatations(data); 
                 console.log('Fetched quatations:', filteredData);
             } catch (error) {
                 console.error('Error fetching quatations:', error);
@@ -58,7 +57,7 @@ function quatationtable() {
         };
 
         fetchCustomer();
-        fetchquatations(id);
+        fetchquatations();
         fetchproduct();  // Call the fetchCustomer function
     }, []);
 
@@ -113,6 +112,14 @@ function quatationtable() {
 
     // ใช้ ThaiBahtText หรือ numeral.js แปลงเลขเป็นคำภาษาไทย
     const thaiBaht = ThaiBahtText(grandTotal.toFixed(2));
+
+    const [selectedId, setSelectedId] = useState('');
+
+    const handleChange = (event) => {
+        const id = event.target.value;
+        setSelectedId(id);
+        setId(id);
+    };
     return (
         <div>
             <Nav />
@@ -120,6 +127,24 @@ function quatationtable() {
                 <div className="button-container">
                     <Button onClick={handleGeneratePDF}>Generate PDF</Button>
                     <Button onClick={() => window.location.href = "/Invoicetable"}>Invoice PDF</Button>
+                    <Box sx={{ minWidth: 120 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Select ID</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={selectedId}
+                                label="Select ID"
+                                onChange={handleChange}
+                            >
+                                {quatations.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.id}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </div>
                 <hr />
                 <div ref={componentRef} className="container small-font">

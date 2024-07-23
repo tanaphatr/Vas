@@ -8,6 +8,7 @@ import Invoicetable from './componant/Invoicetable.jsx';
 import Login from './componant/login.jsx';
 import Register from './componant/register.jsx';
 import Quatationtable from './componant/quatationtable.jsx';
+import DataofCal from './componant/DataofCal.jsx';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/Quatationtable" element={<Quatationtable />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
+        <Route path='/Data' element={<DataofCal />} />
       </Routes>
     </Router>
   </React.StrictMode>
