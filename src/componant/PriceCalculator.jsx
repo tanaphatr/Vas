@@ -1,12 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Css/PriceCalculator.css'; // Import the CSS file
-import { Button } from '@mui/material';
+import { Button, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const PriceCalculator = () => {
   const [exchangeRate, setExchangeRate] = useState(36);
   const [products, setProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [dataofproduct, setDataofproduct] = useState([]);
+  const [selectedProductName, setSelectedProductName] = useState('');
+
+  useEffect(() => {
+    const fetchdataproduct = async () => {
+      try {
+        const response = await fetch('http://localhost:8888/dataofpro');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDataofproduct(data);  // Assuming data is an array of objects
+        console.log('Fetched data:', data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchdataproduct();
+  }, []);
 
   const addProduct = () => {
     setProducts([...products, {
@@ -14,9 +34,11 @@ const PriceCalculator = () => {
       priceListEur: '',
       productDiscount: '',
       margin: '',
-      customerDiscount: ''
+      customerDiscount: '',
+      name: '',  // New field for product name
     }]);
     setCurrentIndex(products.length); // Show the newly added product form
+    setSelectedProductName(''); // Reset selected name
   };
 
   const updateProduct = (field, value) => {
@@ -106,7 +128,6 @@ const PriceCalculator = () => {
   };
 
   const handleSubmit = async () => {
-    // เพิ่มการตรวจสอบข้อมูลที่จะส่งไปที่นี่
     console.log('Data to be submitted:', {
       PriceList: products.map(p => p.priceListEur),
       ProDiscount_per: products.map(p => p.productDiscount),
@@ -118,7 +139,7 @@ const PriceCalculator = () => {
       Profit: allResults.map(result => result.profitEur),
       Profit_per: allResults.map(result => result.profitPercentage),
     });
-  
+
     try {
       const response = await fetch('http://localhost:8888/dataofcalprofit/post', {
         method: 'POST',
@@ -148,7 +169,11 @@ const PriceCalculator = () => {
       alert('An error occurred while submitting data.');
     }
   };
-  
+
+  const handleNameChange = (event) => {
+    setSelectedProductName(event.target.value);
+    updateProduct('name', event.target.value);
+  };
 
   const currentResult = products.length > 0 ? calculateValues(
     products[currentIndex].priceListEur,
@@ -163,14 +188,37 @@ const PriceCalculator = () => {
         <h2>Price List Calculator</h2>
         {products.length > 0 && !showAll && (
           <div className="product-form">
-            <h3>Product {products[currentIndex].id}</h3>
+            <h3>Product {products[currentIndex].name || products[currentIndex].id}</h3>
+            <Box sx={{ minWidth: 120 }}>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Select Name</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={products[currentIndex].name}
+                  label="Select Name"
+                  onChange={handleNameChange}
+                >
+                  {dataofproduct.map((item) => (
+                    <MenuItem key={item.id} value={item.Name_pro}>
+                      {item.Name_pro}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
             <label>
               Price List (EUR):
-              <input
-                type="number"
-                value={products[currentIndex].priceListEur}
-                onChange={(e) => updateProduct('priceListEur', parseFloat(e.target.value) || '')}
-              />
+              {dataofproduct.map((item) => (
+                item.Name_pro === products[currentIndex].name && (
+                  <input
+                    key={item.id}
+                    type="number"
+                    value={products[currentIndex].priceListEur = item.Price_pro}
+                    onChange={(e) => updateProduct('priceListEur', parseFloat(e.target.value) || '')}
+                  />
+                )
+              ))}
             </label>
             <label>
               Product Discount (%):
@@ -196,68 +244,75 @@ const PriceCalculator = () => {
                 onChange={(e) => updateProduct('customerDiscount', parseFloat(e.target.value) || '')}
               />
             </label>
-            <Button onClick={() => deleteProduct(products[currentIndex].id)} color="error">Delete</Button>
-            <div className="navigation-buttons">
-              <Button onClick={previousProduct} disabled={currentIndex === 0}>Previous</Button>
-              <Button onClick={nextProduct} disabled={currentIndex === products.length - 1}>Next</Button>
+            {currentResult && (
+              <div className="results">
+                <p>Cost (EUR): {currentResult.costEur.toFixed(2)}</p>
+                <p>Cost (THB): {currentResult.costThb.toFixed(2)}</p>
+                <p>Price with Margin (EUR): {currentResult.priceWithMarginEur.toFixed(2)}</p>
+                <p>Price with Margin (THB): {currentResult.priceWithMarginThb.toFixed(2)}</p>
+                <p>Customer Price (EUR): {currentResult.customerPriceEur.toFixed(2)}</p>
+                <p>Customer Price (THB): {currentResult.customerPriceThb.toFixed(2)}</p>
+                <p>Profit (EUR): {currentResult.profitEur.toFixed(2)}</p>
+                <p>Profit (THB): {currentResult.profitThb.toFixed(2)}</p>
+                <p>Profit (%): {currentResult.profitPercentage.toFixed(2)}</p>
+              </div>
+            )}
+            <div className="buttons">
+              <Button variant="outlined" onClick={previousProduct} disabled={currentIndex === 0}>
+                Previous
+              </Button>
+              <Button variant="outlined" onClick={nextProduct} disabled={currentIndex === products.length - 1}>
+                Next
+              </Button>
+              <Button variant="outlined" color="secondary" onClick={() => deleteProduct(products[currentIndex].id)}>
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
+        {showAll && (
+          <div className="all-results">
+            <h3>All Products</h3>
+            {products.map((product, index) => (
+              <div key={product.id} className="product-result">
+                <h4>Product {product.name || product.id}</h4>
+                <p>Price List (EUR): {product.priceListEur}</p>
+                <p>Product Discount (%): {product.productDiscount}</p>
+                <p>Margin (%): {product.margin}</p>
+                <p>Customer Discount (%): {product.customerDiscount}</p>
+                <Button variant="outlined" color="secondary" onClick={() => deleteProduct(product.id)}>
+                  Delete
+                </Button>
+              </div>
+            ))}
+            <div className="total-results">
+              <h3>Total Results</h3>
+              <p>Total Cost (EUR): {totalResults.costEur.toFixed(2)}</p>
+              <p>Total Cost (THB): {totalResults.costThb.toFixed(2)}</p>
+              <p>Total Price with Margin (EUR): {totalResults.priceWithMarginEur.toFixed(2)}</p>
+              <p>Total Price with Margin (THB): {totalResults.priceWithMarginThb.toFixed(2)}</p>
+              <p>Total Customer Price (EUR): {totalResults.customerPriceEur.toFixed(2)}</p>
+              <p>Total Customer Price (THB): {totalResults.customerPriceThb.toFixed(2)}</p>
+              <p>Total Profit (EUR): {totalResults.profitEur.toFixed(2)}</p>
+              <p>Total Profit (THB): {totalResults.profitThb.toFixed(2)}</p>
+              <p>Total Profit (%): {totalResults.profitPercentage.toFixed(2)}</p>
             </div>
           </div>
         )}
         {!showAll && (
-          <Button onClick={addProduct}>Add Product</Button>
+          <Button variant="outlined" onClick={addProduct}>
+            Add Product
+          </Button>
         )}
-        <Button onClick={toggleShowAll}>
-          {showAll ? 'Hide Total Products' : 'Show Total Products'}
+        <Button variant="outlined" onClick={toggleShowAll}>
+          {showAll ? 'Show Single Product' : 'Show All Products'}
         </Button>
-        <Button onClick={handleSubmit} color="primary">Submit</Button>
-      </div>
-
-      <div className="results-container">
-        {showAll ? (
-          <>
-            <h2>Total Results for All Products</h2>
-            <div className="product-results">
-              <p>Total Cost (EUR): {formatCurrency(totalResults.costEur, 'EUR')}</p>
-              <p>Total Cost (THB): {formatCurrency(totalResults.costThb, 'THB')}</p>
-              <p>Total Price List + Margin (EUR): {formatCurrency(totalResults.priceWithMarginEur, 'EUR')}</p>
-              <p>Total Price List + Margin (THB): {formatCurrency(totalResults.priceWithMarginThb, 'THB')}</p>
-              <p>Total Customer Price (EUR): {formatCurrency(totalResults.customerPriceEur, 'EUR')}</p>
-              <p>Total Customer Price (THB): {formatCurrency(totalResults.customerPriceThb, 'THB')}</p>
-              <p>Total Profit (EUR): {formatCurrency(totalResults.profitEur, 'EUR')}</p>
-              <p>Total Profit (THB): {formatCurrency(totalResults.profitThb, 'THB')}</p>
-              <p>Total Profit (%): {totalResults.profitPercentage.toFixed(2)}%</p>
-            </div>
-          </>
-        ) : (
-          currentResult && (
-            <>
-              <h2>Calculated Values</h2>
-              <div className="product-results">
-                <h3>Product {products[currentIndex].id}</h3>
-                <br/>
-                <p>Cost (EUR): {formatCurrency(currentResult.costEur, 'EUR')}</p>
-                <p>Cost (THB): {formatCurrency(currentResult.costThb, 'THB')}</p>
-                <p>Price List + Margin (EUR): {formatCurrency(currentResult.priceWithMarginEur, 'EUR')}</p>
-                <p>Price List + Margin (THB): {formatCurrency(currentResult.priceWithMarginThb, 'THB')}</p>
-                <p>Customer Price (EUR): {formatCurrency(currentResult.customerPriceEur, 'EUR')}</p>
-                <p>Customer Price (THB): {formatCurrency(currentResult.customerPriceThb, 'THB')}</p>
-                <p>Profit (EUR): {formatCurrency(currentResult.profitEur, 'EUR')}</p>
-                <p>Profit (THB): {formatCurrency(currentResult.profitThb, 'THB')}</p>
-                <p>Profit (%): {currentResult.profitPercentage.toFixed(2)}%</p>
-              </div>
-            </>
-          )
-        )}
+        <Button variant="outlined" onClick={handleSubmit}>
+          Submit
+        </Button>
       </div>
     </div>
   );
-};
-
-const formatCurrency = (amount, currency) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount);
 };
 
 export default PriceCalculator;
